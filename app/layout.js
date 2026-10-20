@@ -1,17 +1,26 @@
-import { Bebas_Neue, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { getSettings } from "@/lib/db/settings";
 
-const bebas = Bebas_Neue({
-  variable: "--font-bebas",
-  subsets: ["latin"],
-  weight: "400",
+const bebas = localFont({
+  src: "./fonts/bebas-neue-400.ttf", variable: "--font-bebas", weight: "400", display: "swap",
+});
+const inter = localFont({
+  src: [
+    { path: "./fonts/inter-100.ttf", weight: "100", style: "normal" },
+    { path: "./fonts/inter-200.ttf", weight: "200", style: "normal" },
+    { path: "./fonts/inter-300.ttf", weight: "300", style: "normal" },
+    { path: "./fonts/inter-400.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/inter-500.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/inter-600.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/inter-700.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/inter-800.ttf", weight: "800", style: "normal" },
+    { path: "./fonts/inter-900.ttf", weight: "900", style: "normal" },
+  ],
+  variable: "--font-inter", display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+export const dynamic = "force-dynamic";
 
 const siteUrl = "https://www.ironvaultfitness.com";
 

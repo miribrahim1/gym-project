@@ -1,3 +1,4 @@
+import { hasConfirmationAccess } from "@/lib/security/confirmation";
 import { notFound } from "next/navigation";
 import { PackageCheck } from "lucide-react";
 import { getOrderById } from "@/lib/db/supplements";
@@ -9,6 +10,7 @@ export const metadata = { title: "Order Confirmed", robots: { index: false } };
 
 export default async function OrderConfirmationPage({ params }) {
   const { id } = await params;
+  if (!(await hasConfirmationAccess("order", id))) notFound();
   const order = await getOrderById(id);
   if (!order) notFound();
 

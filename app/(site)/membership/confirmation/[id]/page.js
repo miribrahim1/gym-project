@@ -1,3 +1,4 @@
+import { hasConfirmationAccess } from "@/lib/security/confirmation";
 import { notFound } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { getMembershipById } from "@/lib/db/memberships";
@@ -11,6 +12,7 @@ export const metadata = { title: "Welcome to IronVault", robots: { index: false 
 
 export default async function MembershipConfirmationPage({ params }) {
   const { id } = await params;
+  if (!(await hasConfirmationAccess("membership", id))) notFound();
   const [membership, settings] = await Promise.all([getMembershipById(id), getSettings()]);
   if (!membership) notFound();
 
@@ -21,10 +23,11 @@ export default async function MembershipConfirmationPage({ params }) {
           <CheckCircle2 className="size-9" strokeWidth={1.5} />
         </div>
         <h1 className="font-display mt-6 text-5xl tracking-wide text-bone-50 sm:text-6xl">Welcome to {settings.logoText}.</h1>
-        <p className="mt-3 text-bone-400">Your membership is confirmed. We can&rsquo;t wait to have you on the floor.</p>
+        <p className="mt-3 text-bone-400">Your membership request has been received. Our team will confirm payment and activate your membership.</p>
 
         <div className="mt-10 rounded-2xl border border-ink-700 bg-ink-900/60 p-8 text-left">
           <dl className="grid grid-cols-1 gap-y-4 sm:grid-cols-2">
+            <Detail label="Status" value={membership.status} />
             <Detail label="Membership ID" value={membership.id} />
             <Detail label="Plan" value={membership.planName} />
             <Detail label="Start Date" value={formatDate(membership.startDate)} />

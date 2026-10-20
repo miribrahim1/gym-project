@@ -39,10 +39,11 @@ export default function ConfirmationActions({ membership, gymName, gymPhone }) {
 
   function handleDownload() {
     const text = [
-      `${gymName} — Membership Confirmation`,
+      `${gymName} — Membership Request`,
       "----------------------------------------",
       `Membership ID: ${membership.id}`,
       `Plan: ${membership.planName}`,
+      `Status: ${membership.status}`,
       `Billing Cycle: ${membership.billingLabel}`,
       `Start Date: ${membership.startDate}`,
       `Expiry Date: ${membership.expiryDate}`,
@@ -57,7 +58,7 @@ export default function ConfirmationActions({ membership, gymName, gymPhone }) {
   }
 
   const whatsappText = encodeURIComponent(
-    `Hi! I just joined ${gymName} 🎉 Membership ID: ${membership.id}, Plan: ${membership.planName}. Excited to start training!`
+    `Hi! I requested a membership at ${gymName} 🎉 Membership ID: ${membership.id}, Plan: ${membership.planName}. Excited to start training!`
   );
 
   return (

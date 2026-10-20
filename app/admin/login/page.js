@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Info } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import AdminLoginForm from "@/components/admin/AdminLoginForm";
 
 export const metadata = { title: "Sign In" };
@@ -28,13 +28,6 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-gold-500/20 bg-gold-500/[0.05] px-4 py-3 text-xs text-bone-400">
-          <Info className="mt-0.5 size-4 shrink-0 text-gold-400" />
-          <p>
-            Demo credentials — Email: <span className="text-bone-200">admin@ironvaultfitness.com</span> · Password:{" "}
-            <span className="text-bone-200">ironvault2026</span>
-          </p>
-        </div>
 
         <p className="mt-6 text-center">
           <Link href="/" className="text-xs text-bone-500 hover:text-gold-400">← Back to website</Link>

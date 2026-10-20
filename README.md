@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# IronVault Fitness
 
-## Getting Started
+Next.js gym website with an admin dashboard, memberships, bookings and a supplement store.
 
-First, run the development server:
+## Local development
 
-```bash
+```sh
+npm install
+cp .env.example .env.local
+# Set ADMIN_EMAIL, a unique ADMIN_PASSWORD (12+ characters) and SESSION_SECRET (32+ characters).
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Sign in at `/admin/login` using the credentials in `.env.local`. No credentials are displayed on the website or committed to Git. A local `.env.local` may already have been generated during setup; keep it private.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```sh
+npm test
+npm run lint
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Storage and deployment
 
-## Learn More
+The server uses SQLite (`better-sqlite3`), with transactional writes and WAL journaling. Data is initialized from the sample seed once and persists across restarts in `.data/gym.sqlite`. All admin edits and customer submissions use the same database. Artificial database delays have been removed.
 
-To learn more about Next.js, take a look at the following resources:
+Set `GYM_DATA_DIR` to a **persistent local disk** in production, and back up the database with SQLite's backup facilities. This app requires the Node.js runtime and a compatible native SQLite binary. Ephemeral/serverless hosting and separate machines with independent disks require a hosted database adapter before deployment. Do not place SQLite WAL databases on a network filesystem. Public pages render on request to reflect database updates across processes.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Configure the same `SESSION_SECRET` for every server process; changing it signs everyone out. Production sessions require HTTPS. Admin login is disabled until credentials are configured. Login attempts are limited to 10 per 15 minutes for the admin account. The old demo credentials no longer work.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Customer flows
 
-## Deploy on Vercel
+- Product prices, shipping and quantities are checked on the server. Duplicate cart lines are combined before inventory is checked. Inventory updates and order creation happen in one transaction.
+- Membership requests are **pending**, with server-calculated cycle totals. An administrator can activate the member after payment is verified. Public requests cannot alter an existing member using only an email address.
+- No payment provider is connected. Checkout remains clearly labeled as a demo, and pending orders do not represent collected payments. A real provider requires merchant credentials and verified payment webhooks.
+- Receipt pages require a signed HttpOnly cookie issued to the browser that submitted the request (8-hour lifetime), or an authenticated admin session. Sharing the URL alone does not grant access.
+- Appointments reject past dates, invalid times and unavailable weekdays. Restoring cancelled bookings checks capacity or appointment conflicts.
+- Fonts and their open font licenses are bundled under `app/fonts`; builds do not download fonts.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Regression tests cover authorization, forged and expired sessions, private receipts, price tampering, invalid quantities, overselling, persistence across processes, membership validation and appointment rules. The test loader supplies lightweight Next.js request stubs only for unit tests; production builds use the actual framework.

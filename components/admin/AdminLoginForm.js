@@ -52,7 +52,8 @@ export default function AdminLoginForm() {
       </FieldGroup>
       <FieldGroup>
         <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" value={form.password} error={errors.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="current-password" />
+        <Input id="password" type="password" value={form.password} error={errors.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••"
+        autoComplete="current-password" />
         <FieldError>{errors.password}</FieldError>
       </FieldGroup>
       <Button type="submit" disabled={pending} icon={pending ? Loader2 : LogIn} className={"w-full" + (pending ? " [&_svg]:animate-spin" : "")}>

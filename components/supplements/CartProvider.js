@@ -13,7 +13,10 @@ export function CartProvider({ children }) {
     function hydrateFromStorage() {
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (raw) setItems(JSON.parse(raw));
+        if (raw) {
+          const saved = JSON.parse(raw);
+          if (Array.isArray(saved)) setItems(saved.filter((item) => item && typeof item.slug === "string" && typeof item.name === "string" && Number.isFinite(item.price) && item.price >= 0 && Number.isSafeInteger(item.qty) && item.qty > 0 && item.qty <= 999));
+        }
       } catch {
         // ignore corrupt local storage
       }
@@ -24,7 +27,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch { /* Storage may be unavailable or full. */ }
   }, [items, hydrated]);
 
   const addItem = useCallback((product, qty = 1) => {

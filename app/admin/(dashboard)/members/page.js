@@ -5,7 +5,7 @@ import { createMemberAction, updateMemberAction, deleteMemberAction } from "@/li
 
 export const metadata = { title: "Members" };
 
-const STATUSES = ["active", "inactive", "expired"];
+const STATUSES = ["pending", "active", "inactive", "expired"];
 
 export default async function AdminMembersPage() {
   const [members, plans] = await Promise.all([listMembers(), listPlans()]);

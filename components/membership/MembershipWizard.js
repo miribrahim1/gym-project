@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { todayInIndia } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils/cn";
 import { calculatePlanPrice } from "@/lib/utils/pricing";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -15,7 +16,7 @@ const GOALS = ["Weight Loss", "Muscle Gain", "General Fitness", "Strength", "Ath
 const STEPS = ["Plan & Duration", "Your Details", "Review & Confirm"];
 
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return todayInIndia();
 }
 
 export default function MembershipWizard({ plans, cycles, initialPlan, initialCycle }) {
@@ -36,7 +37,7 @@ export default function MembershipWizard({ plans, cycles, initialPlan, initialCy
 
   const plan = plans.find((p) => p.slug === form.planSlug) || plans[0];
   const cycle = cycles.find((c) => c.id === form.billingCycleId) || cycles[0];
-  const pricing = useMemo(() => calculatePlanPrice(plan.monthlyPrice, cycle), [plan, cycle]);
+  const pricing = useMemo(() => calculatePlanPrice(plan?.monthlyPrice || 0, cycle), [plan, cycle]);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -52,7 +53,7 @@ export default function MembershipWizard({ plans, cycles, initialPlan, initialCy
       return Object.keys(next).length === 0;
     }
     if (targetStep === 1) {
-      const result = membershipSignupSchema.safeParse({ ...form, price: pricing.effectiveMonthly });
+      const result = membershipSignupSchema.safeParse(form);
       if (!result.success) {
         const next = {};
         for (const issue of result.error.issues) {
@@ -79,16 +80,18 @@ export default function MembershipWizard({ plans, cycles, initialPlan, initialCy
   function handleConfirm() {
     setServerError("");
     startTransition(async () => {
-      const result = await submitMembershipSignup({ ...form, price: pricing.effectiveMonthly });
+      const result = await submitMembershipSignup(form);
       if (!result.success) {
         setErrors(result.errors || {});
-        setServerError("Please double check the highlighted fields.");
+        setServerError(result.error || "Please double check the highlighted fields.");
         setStep(1);
         return;
       }
       router.push(`/membership/confirmation/${result.membership.id}`);
     });
   }
+
+  if (!plans.length || !cycles.length) return <p className="text-bone-400">Membership signup is temporarily unavailable. Please contact the gym.</p>;
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
@@ -219,7 +222,7 @@ export default function MembershipWizard({ plans, cycles, initialPlan, initialCy
             </Button>
           ) : (
             <Button type="button" onClick={handleConfirm} disabled={pending} icon={pending ? Loader2 : Check} className={pending ? "[&_svg]:animate-spin" : ""}>
-              {pending ? "Confirming…" : "Confirm Membership"}
+              {pending ? "Confirming…" : "Request Membership"}
             </Button>
           )}
         </div>

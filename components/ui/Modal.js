@@ -8,28 +8,26 @@ export default function Modal({ open, onClose, title, children, className, size 
   const dialogRef = useRef(null);
 
   useEffect(() => {
-    if (!open) return;
-    function onKeyDown(e) {
-      if (e.key === "Escape") onClose?.();
-    }
-    document.addEventListener("keydown", onKeyDown);
+    const dialog = dialogRef.current;
+    if (!open || !dialog) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    dialog.showModal();
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
   return (
+    <dialog ref={dialogRef} aria-label={title} onCancel={(event) => { event.preventDefault(); onClose?.(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none border-0 bg-transparent p-0 text-inherit backdrop:bg-transparent">
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 animate-fade-in">
       <div className="absolute inset-0 bg-ink-950/85 backdrop-blur-sm" onClick={onClose} aria-hidden />
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
         className={cn(
           "relative z-10 max-h-[88vh] w-full overflow-y-auto rounded-2xl border border-ink-600 bg-ink-900 shadow-2xl animate-fade-up",
           size === "sm" && "max-w-md",
@@ -53,5 +51,6 @@ export default function Modal({ open, onClose, title, children, className, size 
         <div className="p-6">{children}</div>
       </div>
     </div>
+    </dialog>
   );
 }
